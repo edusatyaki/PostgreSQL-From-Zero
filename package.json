@@ -1,0 +1,13 @@
+{
+  "name": "postgresql-from-zero",
+  "private": true,
+  "type": "module",
+  "description": "A digital book that teaches PostgreSQL from zero, with every example running on real PostgreSQL in the browser.",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "serve": "python3 serve.py 8110"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}

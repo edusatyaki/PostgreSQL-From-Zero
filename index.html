@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PostgreSQL from Zero</title>
+<meta name="description" content="A digital book that teaches PostgreSQL from zero: ten chapters, every example running on real PostgreSQL 18 inside the page, with MCQ checkpoints and bug hunts.">
+<meta property="og:title" content="PostgreSQL from Zero">
+<meta property="og:description" content="Learn SQL from 'what is a table?' to window functions and joins. Every query runs on real PostgreSQL in your browser.">
+<meta property="og:type" content="book">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFD766' stroke='%231C1A17' stroke-width='1.6'%3E%3Cellipse cx='12' cy='5.5' rx='8' ry='3'/%3E%3Cpath d='M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/book.css">
+<script>
+  /* set the theme before the first paint, so dark-mode readers never see a cream flash */
+  try { var t = localStorage.getItem("pgz:theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body data-accent="amber">
+<div id="app">
+  <aside class="rail" aria-label="Chapters">
+    <button class="brand" id="homeBtn" title="Contents"><span>A digital book</span><b>PostgreSQL <i>from Zero</i></b></button>
+    <nav class="toc" id="toc"></nav>
+    <div class="rail-by">Written by <b>Satyaki Das</b></div>
+  </aside>
+
+  <div class="doc">
+    <header class="doc-head">
+      <button class="ib only-narrow" id="menuBtn" aria-label="Chapters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="head-text">
+        <div class="eyebrow" id="eyebrow"></div>
+        <p class="head-title" id="htitle"></p>
+      </div>
+      <div class="tools">
+        <span class="pg hide-xs" id="pg" data-s="idle" title="The PostgreSQL database inside this page"><i></i><span class="lbl"></span></span>
+        <button class="ib" id="searchBtn" title="Search (/)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg><span class="lbl">Search</span>
+        </button>
+        <button class="ib" id="listenBtn" aria-pressed="false" title="Read this page aloud">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg><span class="lbl">Listen</span>
+        </button>
+        <button class="ib hide-xs" id="smaller" title="Smaller text" aria-label="Smaller text"><b>A-</b></button>
+        <button class="ib hide-xs" id="bigger" title="Bigger text" aria-label="Bigger text"><b>A+</b></button>
+        <button class="ib" id="themeBtn" aria-pressed="false" title="Light / dark (T)" aria-label="Light or dark theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main><article class="page" id="page"></article></main>
+
+    <footer class="doc-foot">
+      <button class="ib nav" id="prev" title="Previous page (Left arrow)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg><span class="lbl">Previous</span>
+      </button>
+      <div class="where"><span id="pageNo"></span><div class="bar"><span id="bar"></span></div></div>
+      <button class="ib nav" id="next" title="Next page (Right arrow)">
+        <span class="lbl">Next</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </footer>
+  </div>
+</div>
+
+<div class="overlay" id="search" role="dialog" aria-label="Search the book">
+  <div class="sbox">
+    <input id="sq" type="search" placeholder="Search topics and functions..." autocomplete="off">
+    <div class="sres" id="sres"></div>
+  </div>
+</div>
+
+<noscript><p style="padding:2rem">This book needs JavaScript to run its PostgreSQL examples.</p></noscript>
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>
