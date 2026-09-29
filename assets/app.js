@@ -10,11 +10,11 @@
    running every query on PostgreSQL 18. Pressing Run on unchanged code shows
    that saved output instantly; edited code runs live on PGlite (assets/pg.js).
    =========================================================================== */
-import { CHAPTERS, pageKey, sandboxSQL, replaySQL } from "../book/index.js";
-import OUT from "../book/outputs.js";
-import { art } from "./art.js";
+import { CHAPTERS, pageKey, sandboxSQL, replaySQL } from "../book/index.js?v=202609291147";
+import OUT from "../book/outputs.js?v=202609291147";
+import { art } from "./art.js?v=202609291147";
 import { transcript } from "./sqlrun.js";
-import { runFresh, runPlayground, onStatus } from "./pg.js";
+import { runFresh, runPlayground, onStatus } from "./pg.js?v=202609291147";
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
