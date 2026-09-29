@@ -490,6 +490,7 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "ArrowLeft") { go(cur - 1); e.preventDefault(); }
   else if (e.key === "/" ) { openSearch(); e.preventDefault(); }
   else if (e.key === "t" || e.key === "T") toggleTheme();
+  else if (e.key === "f" || e.key === "F") toggleFullscreen();
   else if (e.key === "Home") go(0);
 });
 
@@ -505,6 +506,15 @@ function toggleTheme() {
   const t = dark ? "light" : "dark";
   prefSet("pgz:theme", t); applyTheme(t);
 }
+/* full screen: the whole page, not one element, so search and the rail still work */
+function toggleFullscreen() {
+  if (document.fullscreenElement) document.exitFullscreen?.();
+  else document.documentElement.requestFullscreen?.().catch(() => {});
+}
+document.addEventListener("fullscreenchange", () => {
+  $("#fsBtn").setAttribute("aria-pressed", String(!!document.fullscreenElement));
+  document.body.classList.remove("menu");
+});
 let scale = +prefGet("pgz:scale", 1) || 1;
 function applyScale() { document.documentElement.style.setProperty("--scale", scale); prefSet("pgz:scale", scale); }
 
@@ -586,6 +596,8 @@ function start() {
   $("#prev").onclick = () => go(cur - 1);
   $("#next").onclick = () => go(cur + 1);
   $("#themeBtn").onclick = toggleTheme;
+  $("#fsBtn").onclick = toggleFullscreen;
+  if (!document.documentElement.requestFullscreen) $("#fsBtn").hidden = true;   /* iPhone Safari has no page full screen */
   $("#searchBtn").onclick = openSearch;
   $("#listenBtn").onclick = speak;
   $("#smaller").onclick = () => { scale = Math.max(0.8, +(scale - 0.1).toFixed(2)); applyScale(); };

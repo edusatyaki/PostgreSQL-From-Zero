@@ -115,6 +115,15 @@ kbd{font-family:var(--mono);font-size:.8em;background:var(--amber-soft);border:1
 .ib:hover{transform:translate(-1px,-1px)}
 .ib svg{width:1rem;height:1rem;flex:0 0 auto}
 .ib[aria-pressed="true"]{background:var(--amber)}
+#fsBtn .fs-out,#fsBtn[aria-pressed="true"] .fs-in{display:none}
+#fsBtn[aria-pressed="true"] .fs-out{display:inline}
+/* in full screen the chapter rail steps aside, so the page gets the whole width;
+   the menu button (as on phones) still opens it */
+:root:fullscreen #app{grid-template-columns:1fr}
+:root:fullscreen .rail{position:fixed;z-index:40;inset:0 auto 0 0;width:min(20rem,86vw);background:var(--paper);
+  transform:translateX(-102%);transition:transform .25s ease;border-right:3px solid var(--ink);box-shadow:var(--shadow)}
+:root:fullscreen body.menu .rail{transform:none}
+:root:fullscreen .only-narrow{display:inline-flex}
 .ib .lbl{white-space:nowrap}
 .pg{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;color:var(--muted);white-space:nowrap;padding:0 .3rem}
 .pg i{width:.55rem;height:.55rem;border-radius:50%;background:var(--line);display:inline-block}

@@ -104,6 +104,7 @@ any SQL, run `npm run build`.
 | `Right` / `Left` | next / previous page |
 | `/` | search topics and functions |
 | `T` | light / dark |
+| `F` | full screen (the chapter list moves behind the menu button) |
 | `Ctrl` + `Enter` | run the code you are editing |
 
 **Listen** reads the page aloud with the browser's own voice (an Indian English
