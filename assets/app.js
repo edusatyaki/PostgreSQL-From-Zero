@@ -506,14 +506,43 @@ function toggleTheme() {
   const t = dark ? "light" : "dark";
   prefSet("pgz:theme", t); applyTheme(t);
 }
-/* full screen: the whole page, not one element, so search and the rail still work */
-function toggleFullscreen() {
-  if (document.fullscreenElement) document.exitFullscreen?.();
-  else document.documentElement.requestFullscreen?.().catch(() => {});
-}
-document.addEventListener("fullscreenchange", () => {
-  $("#fsBtn").setAttribute("aria-pressed", String(!!document.fullscreenElement));
+/* full screen: the whole page, not one element, so search and the rail still work.
+   Browsers refuse it inside an embedded frame, older Safari only knows the
+   webkit- names, and iPhone Safari has none - so when the real thing is not
+   granted, "focus mode" gives the same layout inside the window instead. */
+const root = document.documentElement;
+const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+function syncFs() {
+  const on = !!fsElement() || root.classList.contains("focus");
+  $("#fsBtn").setAttribute("aria-pressed", String(on));
+  $("#fsBtn .lbl").textContent = on ? "Exit full screen" : "Full screen";
   document.body.classList.remove("menu");
+}
+let fsAskedAt = 0;
+function toggleFullscreen() {
+  if (root.classList.contains("focus") || fsElement()) {
+    root.classList.remove("focus");
+    if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    syncFs();
+    return;
+  }
+  /* the layout changes at once, whatever the browser decides about true full screen */
+  root.classList.add("focus");
+  syncFs();
+  const req = root.requestFullscreen || root.webkitRequestFullscreen;
+  if (req) { fsAskedAt = Date.now(); try { Promise.resolve(req.call(root)).catch(() => {}); } catch {} }
+}
+function onFsChange() {
+  /* leaving true full screen with Esc also leaves the full-width layout - unless the
+     browser dropped it straight after granting it, as some embedded views do */
+  if (!fsElement() && Date.now() - fsAskedAt > 1500) root.classList.remove("focus");
+  syncFs();
+}
+document.addEventListener("fullscreenchange", onFsChange);
+document.addEventListener("webkitfullscreenchange", onFsChange);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && root.classList.contains("focus") && !e.target.closest("input, textarea")
+      && !$("#search").classList.contains("open")) { root.classList.remove("focus"); syncFs(); }
 });
 let scale = +prefGet("pgz:scale", 1) || 1;
 function applyScale() { document.documentElement.style.setProperty("--scale", scale); prefSet("pgz:scale", scale); }
@@ -597,7 +626,6 @@ function start() {
   $("#next").onclick = () => go(cur + 1);
   $("#themeBtn").onclick = toggleTheme;
   $("#fsBtn").onclick = toggleFullscreen;
-  if (!document.documentElement.requestFullscreen) $("#fsBtn").hidden = true;   /* iPhone Safari has no page full screen */
   $("#searchBtn").onclick = openSearch;
   $("#listenBtn").onclick = speak;
   $("#smaller").onclick = () => { scale = Math.max(0.8, +(scale - 0.1).toFixed(2)); applyScale(); };
