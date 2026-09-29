@@ -106,9 +106,11 @@ say(`\nwrote ${Object.keys(out).length} outputs to book/outputs.js`);
    next reload fetch the new files. */
 const V = new Date().toISOString().replace(/\D/g, "").slice(0, 12);
 for (const [rel, re] of [["../index.html", /(assets\/(?:book\.css|app\.js))(\?v=\d+)?/g],
-                         ["../assets/app.js", /(from "\.{1,2}\/(?:book\/index|book\/outputs|art|pg)\.js)(\?v=\d+)?"/g]]) {
+                         ["../assets/app.js", /(from "\.{1,2}\/(?:book\/index|book\/outputs|book\/narrate|art|pg)\.js)(\?v=\d+)?"/g]]) {
   const f = fileURLToPath(new URL(rel, import.meta.url));
-  writeFileSync(f, readFileSync(f, "utf8").replace(re, (m, p) => `${p}?v=${V}${m.endsWith('"') ? '"' : ""}`));
+  let src = readFileSync(f, "utf8").replace(re, (m, p) => `${p}?v=${V}${m.endsWith('"') ? '"' : ""}`);
+  if (rel.endsWith("app.js")) src = src.replace(/const AUDIO_V = "\d+";/, `const AUDIO_V = "${V}";`);
+  writeFileSync(f, src);
 }
 say(`stamped version ${V} on the page's links`);
 

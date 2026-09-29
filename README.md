@@ -95,6 +95,8 @@ any SQL, run `npm run build`.
 | `assets/sqlrun.js` | splits scripts and prints results like psql (shared by the build and the page) |
 | `assets/pg.js` | loads PGlite on demand and queues runs |
 | `assets/art.js` | the drawings, as inline SVG coloured by the theme |
+| `book/narrate.js` | what the narrator says on each page |
+| `tools/gen_audio.py` | records the narration into `audio/` |
 | `assets/book.css` | the look, light and dark |
 
 ## Keys
@@ -107,9 +109,27 @@ any SQL, run `npm run build`.
 | `F` | full screen (the chapter list moves behind the menu button) |
 | `Ctrl` + `Enter` | run the code you are editing |
 
-**Listen** reads the page aloud with the browser's own voice (an Indian English
-voice where available). Progress, quiz answers and the theme are saved in the
-reader's browser only.
+Progress, quiz answers and the theme are saved in the reader's browser only.
+
+## The narrator
+
+**Listen** plays a recorded explanation of the page in a female Indian English
+voice: Microsoft's neural `en-IN-NeerjaNeural`, generated with the free
+`edge-tts` tool. There is one clip per page (`audio/<page>.mp3`), fetched only
+when pressed, and it stops when you turn the page.
+
+The words come from `book/narrate.js`, built from the same chapter data as the
+page, with symbols spelled out for speaking (`<>` becomes "not equal to", `%`
+"percent", `psql` "P S Q L"). If a clip cannot play, the browser speaks the same
+words, choosing a female Indian English voice when it has one (Veena or Lekha on a Mac, Heera on Windows).
+
+After editing a chapter, re-record only the pages whose words changed:
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install edge-tts
+.venv/bin/python tools/gen_audio.py            # changed pages only
+.venv/bin/python tools/gen_audio.py --all      # everything
+```
 
 ## Deploy
 

@@ -10,11 +10,12 @@
    running every query on PostgreSQL 18. Pressing Run on unchanged code shows
    that saved output instantly; edited code runs live on PGlite (assets/pg.js).
    =========================================================================== */
-import { CHAPTERS, pageKey, sandboxSQL, replaySQL } from "../book/index.js?v=202609291147";
-import OUT from "../book/outputs.js?v=202609291147";
-import { art } from "./art.js?v=202609291147";
+import { CHAPTERS, pageKey, sandboxSQL, replaySQL } from "../book/index.js?v=202609291158";
+import OUT from "../book/outputs.js?v=202609291158";
+import { art } from "./art.js?v=202609291158";
+import { narration, audioFile } from "../book/narrate.js?v=202609291158";
 import { transcript } from "./sqlrun.js";
-import { runFresh, runPlayground, onStatus } from "./pg.js?v=202609291147";
+import { runFresh, runPlayground, onStatus } from "./pg.js?v=202609291158";
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -548,29 +549,50 @@ let scale = +prefGet("pgz:scale", 1) || 1;
 function applyScale() { document.documentElement.style.setProperty("--scale", scale); prefSet("pgz:scale", scale); }
 
 /* ---------------------------------------------------------------- read aloud */
+/* The narrator is a recorded female Indian English voice (en-IN-NeerjaNeural,
+   tools/gen_audio.py): audio/<page>.mp3. If a clip cannot play, the browser
+   speaks the same words, preferring a female Indian English voice. */
+const AUDIO_V = "202609291158";   /* stamped by tools/build.mjs */
 let speaking = false;
+const player = new Audio();
+player.preload = "none";
+player.onended = () => stopSpeaking();
 function stopSpeaking() {
-  if (!("speechSynthesis" in window)) return;
-  speechSynthesis.cancel(); speaking = false;
+  player.pause();
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  speaking = false;
   $("#listenBtn")?.setAttribute("aria-pressed", "false");
 }
-function speak() {
-  if (!("speechSynthesis" in window)) { alert("This browser cannot read aloud."); return; }
-  if (speaking) { stopSpeaking(); return; }
-  const text = [...document.querySelectorAll("#page .ptitle, #page .say")].map((n) => n.textContent).join(". ")
-    .replace(/\s+/g, " ").replace(/<>/g, " not equal to ");
+const FEMALE_IN = /veena|isha|lekha|heera|neerja|kalpana|swara|aditi|raveena|priya|female/i;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices();
+  const inV = vs.filter((v) => /en[-_]IN/i.test(v.lang));
+  return inV.find((v) => FEMALE_IN.test(v.name)) || vs.find((v) => /hi[-_]IN/i.test(v.lang) && FEMALE_IN.test(v.name))
+    || inV[0] || vs.find((v) => /^en/i.test(v.lang) && /female/i.test(v.name))
+    || vs.find((v) => /^en/i.test(v.lang));
+}
+function speakWithBrowser(text) {
+  if (!("speechSynthesis" in window)) { stopSpeaking(); return; }
+  const voice = pickVoice();
   const parts = text.match(/[^.!?]+[.!?]*/g) || [];
-  const voices = speechSynthesis.getVoices();
-  const voice = voices.find((v) => v.lang === "en-IN") || voices.find((v) => /^en/.test(v.lang));
-  speaking = true;
-  $("#listenBtn").setAttribute("aria-pressed", "true");
   parts.forEach((s, i) => {
     const u = new SpeechSynthesisUtterance(s.trim());
-    if (voice) u.voice = voice;
+    if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = "en-IN";
     u.rate = 0.98;
     if (i === parts.length - 1) u.onend = () => stopSpeaking();
     speechSynthesis.speak(u);
   });
+}
+function speak() {
+  if (speaking) { stopSpeaking(); return; }
+  const e = PAGES[cur];
+  speaking = true;
+  $("#listenBtn").setAttribute("aria-pressed", "true");
+  let fellBack = false;
+  const fallback = () => { if (speaking && !fellBack) { fellBack = true; speakWithBrowser(narration(e.ch, e.p)); } };
+  player.onerror = fallback;
+  player.src = `audio/${audioFile(e.ch, e.p)}.mp3?v=${AUDIO_V}`;
+  player.play().catch(fallback);
 }
 
 /* ---------------------------------------------------------------- search */
